@@ -1,0 +1,17 @@
+variable "ami" {
+  description = "ID of AMI to use for the instance"
+  type        = string
+  default     = "ami-0c7e4d742879edae4"
+}
+
+variable "instance_type" {
+  description = "The type of instance to start"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "subnet_id" {
+  description = "The VPC Subnet ID to launch in"
+  type        = string
+  default     = "subnet-012b883e6a84bc8c0"
+}
