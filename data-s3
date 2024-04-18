@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = 'your_aws_region'
+        AWS_ACCESS_KEY_ID = credentials('your_aws_access_key_id')
+        AWS_SECRET_ACCESS_KEY = credentials('your_aws_secret_access_key')
+        SOURCE_DIR = '/var/lib/jenkins/jobs'
+        S3_BUCKET = 'your_s3_bucket_name'
+    }
+
+    stages {
+        stage('Copy to S3') {
+            steps {
+                script {
+                    // Sync job folders to S3 bucket
+                    sh "aws s3 sync ${SOURCE_DIR} s3://${S3_BUCKET}/jobs --exclude '*' --include '*' --recursive"
+                }
+            }
+        }
+    }
+}
+
+In this script:
+
+Replace 'your_aws_region' with your AWS region.
+Replace 'your_aws_access_key_id' and 'your_aws_secret_access_key' with the credentials ID configured in Jenkins for your AWS access key and secret access key. 
+You should add these credentials to Jenkins through the Jenkins Credential Manager.
+Replace 'your_s3_bucket_name' with the name of your S3 bucket.
+This script will sync the contents of the /var/lib/jenkins/jobs directory to the specified S3 bucket. 
+Adjust the paths and parameters as needed to fit your specific setup. Make sure that the Jenkins user has the necessary permissions to read from the Jenkins directory and write to the S3 bucket.
