@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+	
+	environment {
+        PACKER_PATH = '/path/to/packer'
+        AWS_REGION = 'your_aws_region'
+        AWS_ACCESS_KEY_ID = credentials('your_aws_access_key_id')
+        AWS_SECRET_ACCESS_KEY = credentials('your_aws_secret_access_key')
+        PACKER_TEMPLATE = 'path/to/your/packer/template.json'
+        AMI_NAME = 'your-ami-name'
+    }
+
+    stages {
+        stage ('checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'g', url: 'https://github.com/vra0613/myInfra.git']])
+            }
+        }
+		stage('Build AMI') {
+            steps {
+                script {
+                  sh "${PACKER_PATH} build -var 'aws_access_key=${AWS_ACCESS_KEY_ID}' -var 'aws_secret_key=${AWS_SECRET_ACCESS_KEY}' -var 'aws_region=${AWS_REGION}' -var 'ami_name=${AMI_NAME}' ${PACKER_TEMPLATE}"
+                }
+            }
+        }
+        stage ('init') {
+            steps {
+                sh ("terraform init -reconfigure")
+            }
+        }
+        stage ('plan') {
+            steps {
+                sh ("terraform plan")
+            }
+        }
+        stage ('action') {
+            steps {
+                echo "Terraform action is ${action}"
+                sh ("terraform ${action} --auto-approve")
+            }
+        }
+    }
+}
