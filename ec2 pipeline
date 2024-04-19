@@ -1,7 +1,10 @@
 pipeline {
     agent any
-	
-	environment {
+
+   parameters {
+        choice(name: 'TERRAFORM_ACTION', choices: ['apply', 'destroy'], description: 'Select Terraform action: Apply or Destroy')
+    }
+   environment {
         PACKER_PATH = '/path/to/packer'
         AWS_REGION = 'your_aws_region'
         AWS_ACCESS_KEY_ID = credentials('your_aws_access_key_id')
@@ -35,8 +38,8 @@ pipeline {
         }
         stage ('action') {
             steps {
-                echo "Terraform action is ${action}"
-                sh ("terraform ${action} --auto-approve")
+                echo "Terraform action is ${TERRAFORM_ACTION}"
+                sh ("terraform ${TERRAFORM_ACTION} --auto-approve")
             }
         }
     }
